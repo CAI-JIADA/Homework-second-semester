@@ -283,6 +283,7 @@ int main() {
 
 ### 測試案例
 <img width="477" height="285" alt="image" src="https://github.com/user-attachments/assets/f9f005ec-6669-494c-bcb3-ecec7e8d74c7" />
+
 測試一: 
 輸入: $100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000$
 
