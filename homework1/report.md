@@ -115,9 +115,12 @@ int main() {
 ## 效能分析
 
 1. 時間複雜度：
-Push： $O(\log n)$ 
+Push： $O(\log n)$
+
 Pop： $O(\log n)$ 
+
 Top： $O(1)$ 
+
 2. 空間複雜度： $O(n)$
 
 ## 測試與驗證
