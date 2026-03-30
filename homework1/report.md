@@ -126,81 +126,163 @@ Top： $O(1)$
 
 |輸入參數 $m$ $n$ | 預期輸出 | 實際輸出 |
 |---------------|----------|----------|
-| $35, 10, 70, 5, 25$ | $5 10 25 35 70$        | $5 10 25 35 70$       |
+| $35, 10, 70, 5, 25$ | $5,10,25,35,70$ | $5,10,25,35,70$       |
 
 
 ### 結論
 
-1. 程式能正確計算 $Ackermann(m, n)$ 的答案。
-2. $Ackermann$ 函數成長數度極快以至於過大數字程式無法處理。  
+1. 程式成功透過堆疊調整演算法維持最小優先權特性。
+2. 利用 $template <class T>$ 可支援各種資料型態。
 
 ## 申論及開發報告
 
-1. **為何使用遞迴**
-   
-除了題目本身需求外 $Ackermann$ 函數的定義本身是遞迴形式，因此以遞迴程式最直觀。 
-
-2. **函式特性**  
+1. **函式特性**  
 $Ackermann$ 函數的成長極快，超過一定值（如 m ≥ 4, n ≥ 2）會導致遞迴過深而異位。
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-作業二
+作業二 Binary Search Tree
 
 ## 解題說明
 
-本題要求使用遞迴方式列出所有可能的子集合。
+本題要求實作二元搜尋樹，並測量隨機插入下樹的高度變化，同時實現節點刪除功能。
 
 ### 解題策略
-使用一個 char 陣列 S[] 儲存輸入的集合元素。
-使用另一個 char 陣列 subset[] 暫存目前遞迴過程中產生的子集合。
-為了讓重複的元素相鄰，先用```sort(S, S + n)```排序，若在遞迴中若發現連續相同元素，利用```if (i > index && S[i] == S[i - 1]) continue;```跳過重複組合。
+1.隨機數實驗：利用 $mt19937$ 產生均勻隨機數，建立不同規模的 $BST$ 並測量高度。
+2.高度驗證：計算 $Height / \log_2 n$ 之比例，觀察是否如理論預期趨近於常數 $2$ 。
 ## 程式實作
 
 以下為主要程式碼：
 
-```#include<iostream>
-#include <algorithm>//排序用
+```#include <iostream>
+#include <vector>
+#include <random>
+#include <cmath>
+#include <algorithm>
+#include <iomanip>
 using namespace std;
-void powerset(char S[], int n, int index, char subset[], int subsetSize) {//index指目前遞迴到第幾個元素，subsetSize表示目前子集合中有多少元素
-    // 輸出目前子集合
-    cout << "(";
-    for (int i = 0; i < subsetSize; i++) {
-        cout << subset[i];
+//定義二元搜尋樹節點
+struct Node
+{
+    int data;
+    Node* left, * right;
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+//尋找最小值節點
+Node* findmin(Node* root)
+{
+    while (root && root->left != nullptr) root = root->left;
+    return root;
+}
+
+Node* deleteNode(Node* root, int k)
+{
+    if (root == nullptr) return root;
+    // 尋找要刪除的目標
+    if (k < root->data)
+        root->left = deleteNode(root->left, k);
+    else if (k > root->data)
+        root->right = deleteNode(root->right, k);
+    else {
+        //只有一個子節點 沒有子節點
+        if (root->left == nullptr)
+        {
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        }
+        else if (root->right == nullptr)
+        {
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        }
+        //有兩個子節點
+        //找到右子樹中最小的節點來接替
+        Node* temp = findmin(root->right);
+        root->data = temp->data; //複製
+        root->right = deleteNode(root->right, temp->data);//刪除原本的最小節點
     }
-    cout << ")" << endl;
-    for (int i = index; i < n; i++) {//如果有重複元素跳過
-        if (i > index && S[i] == S[i - 1])continue;
-        subset[subsetSize] = S[i];
-        powerset(S, n, i + 1, subset, subsetSize + 1);
+    return root;
+}
+// 插入節點
+Node* insert(Node* root, int val)
+{
+    if (root == nullptr) return new Node(val);
+    if (val < root->data) root->left = insert(root->left, val);
+    else if (val > root->data) root->right = insert(root->right, val);
+    return root;
+}
+// 計算樹的高度
+int TreeH(Node* root)
+{
+    if (root == nullptr) return -1;
+    return 1 + max(TreeH(root->left), TreeH(root->right));
+}
+//釋放記憶體
+void deleteT(Node* root)
+{
+    if (root == nullptr) return;
+    deleteT(root->left);
+    deleteT(root->right);
+    delete(root);
+}
+//中序走訪
+void inorder(Node* root)
+{
+    if (root) {
+        inorder(root->left);
+        cout << root->data << " ";
+        inorder(root->right);
     }
 }
 int main() {
-	int n;
-	cout << "請輸入n:";
-	cin >> n;
-	cout << endl<< "請輸入元素:";
-	char* S = new char[n];//建立集合陣列
-    char* subset = new char[n];//暫存目前正在生成的子集合
-	for (int i = 0;i < n;i++) {
-		cin >> S[i];
-	}
-    sort(S, S + n);//將重複元素排一起
-	cout << endl<< "冪集合為：" ;
-    powerset(S, n, 0, subset, 0);
-    delete[] S;
-    delete[] subset;
-	return 0;
+    vector<int> n = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 };
+    random_device rd;//隨機數產生器
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(1, 1000000); //隨機數範圍
+    cout << fixed << setprecision(4);
+    cout << "n\t\tHeight\t\tlog2(n)\t\t(Height/log2n)" << endl;//格式n Height log2(n) (Height/log2n)
+    cout << "------------------------------------------------------------" << endl;
+    for (int a : n)
+    {
+        Node* root = nullptr;
+        for (int i = 0; i < a; ++i) root = insert(root, dis(gen));
+        int h = TreeH(root);
+        double ratio = h / log2(a);
+        cout << a << "\t\t" << h << "\t\t" << log2(a) << "\t\t" << ratio << endl;
+        deleteT(root);
+    }
+    //測試(b)功能
+    cout << endl << "Part (b)" << endl;
+    Node* testRoot = nullptr;
+    vector<int> testData = { 30, 75, 60, 40, 25, 65, 80 };
+    cout << "插入數據: ";
+    for (int x : testData)
+    {
+        cout << x << " ";
+        testRoot = insert(testRoot, x);
+    }
+    int target = 30;//測試刪除節點
+    testRoot = deleteNode(testRoot, target);
+    cout << "\n刪除後:";
+    inorder(testRoot);
+    cout << endl;
+    deleteT(testRoot);
+    return 0;
 }
 ```
 
 ## 效能分析
 
-1. 時間複雜度：程式的時間複雜度為 $O(n*2^n)$。
-2. 空間複雜度：空間複雜度為 $O(n)$。
+1. 時間複雜度：
+隨機插入的平均時間: $O(\log n)$。
+計算高度: $O(n)$。
+2. 空間複雜度： $O(n)$
 
 ## 測試與驗證
 
 ### 測試案例
+<img width="477" height="285" alt="image" src="https://github.com/user-attachments/assets/f9f005ec-6669-494c-bcb3-ecec7e8d74c7" />
 
 測試一: $n = 3$  $abc$
 輸出:()(a)(ab)(abc)(ac)(b)(bc)(c)
