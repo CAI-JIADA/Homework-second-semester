@@ -115,6 +115,7 @@ int main() {
 ## 效能分析
 
 1. 時間複雜度：
+
 Push： $O(\log n)$
 
 Pop： $O(\log n)$ 
