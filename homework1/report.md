@@ -282,13 +282,15 @@ int main() {
 ## 測試與驗證
 
 ### 測試案例
+
+測試一: 
+輸入: $100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000$
+輸出:<img width="592" height="280" alt="image" src="https://github.com/user-attachments/assets/3c788e90-baaa-4906-9c5f-22af25e3b5ca" />
 <img width="477" height="285" alt="image" src="https://github.com/user-attachments/assets/f9f005ec-6669-494c-bcb3-ecec7e8d74c7" />
 
-測試一: $n = 3$  $abc$
-輸出:()(a)(ab)(abc)(ac)(b)(bc)(c)
-
-測試二: $n = 3$  $abb$
-輸出:()(a)(ab)(abb)(b)(bb)
+測試二:
+輸入: $30, 75, 60, 40, 25, 65, 80$
+輸出: $25,40,60,65,75,80$
 
 ### 結論
 
